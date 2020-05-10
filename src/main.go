@@ -45,6 +45,8 @@ func ScanPort(ip string, port int, timeout time.Duration){
 			ScanPort(ip,port,timeout)
 		} else{
 			fmt.Println(port,"closed")
+			// if port is closed then we don't need to close the connection, hence return
+			return
 		}
 	}
 	conn.Close()
@@ -55,10 +57,10 @@ func ScanPort(ip string, port int, timeout time.Duration){
 func (ps *PortScanner) Start(f int, l int, timeout time.Duration){
 	wg := sync.WaitGroup{}
 	defer wg.Wait()
-	// ps.lock = semaphore.NewWeighted(int64(l-f));
 
 	for port:= f ; port <= l; port++ {
 		wg.Add(1)
+		fmt.Println()
 		ps.lock.Acquire(context.TODO(),1)
 
 		go func(port int){
@@ -75,5 +77,5 @@ func main(){
 		ip: "127.0.0.1",
 		lock: semaphore.NewWeighted(Ulimit()),
 	}
-	ps.Start(1,2,500*time.Millisecond)
+	ps.Start(1,65535,500*time.Millisecond)
 }
